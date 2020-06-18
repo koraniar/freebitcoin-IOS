@@ -11,6 +11,7 @@ import WebKit
 
 class ViewController: UIViewController, WKUIDelegate {
     var webView: WKWebView!
+    var secondsForNotification: double_t!
     
     override func loadView() {
         let webConfiguration = WKWebViewConfiguration()
@@ -41,10 +42,21 @@ class ViewController: UIViewController, WKUIDelegate {
                     let datePicker: UIDatePicker = UIDatePicker()
                     datePicker.frame = CGRect(x: 0, y: self.webView.frame.height - 200, width: self.webView.frame.width, height: 200)
                     datePicker.datePickerMode = .countDownTimer
-                    datePicker.countDownDuration = 60 * 60
+                    datePicker.countDownDuration = 60
                     datePicker.backgroundColor = UIColor.white
+                    datePicker.setValue(UIColor.black, forKeyPath: "textColor")
                     datePicker.addTarget(self, action: #selector(self.datePickerValueChanged(_:)), for: .valueChanged)
                     datePicker.tag = 1 // Id to remove it later
+                    
+                    let calendar = Calendar.current
+                    var components = DateComponents()
+                    components.day = 1
+                    components.month = 1
+                    components.year = 2000
+                    components.hour = 1
+                    components.minute = 0
+                    let newDate = calendar.date(from: components)
+                    datePicker.setDate(newDate ?? Date(), animated: true)
                     
                     // Create Toolbar for 'done' button
                     let flexiblespace = UIBarButtonItem(barButtonSystemItem:.flexibleSpace , target: nil, action: nil)
@@ -58,21 +70,6 @@ class ViewController: UIViewController, WKUIDelegate {
                     self.webView.addSubview(datePicker)
                     self.webView.addSubview(barAccessory)
                 }
-                
-                
-//                // Schedule Notification
-//                let content = UNMutableNotificationContent()
-//                content.title = "Notification"
-//                content.body = "Hello From Kavsoft !!!"
-//
-//                // this time interval represents the delay time of notification
-//                // ie., the notification will be delivered after the delay.....
-//
-//                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-//
-//                let request = UNNotificationRequest(identifier: "noti", content: content, trigger: trigger)
-//                UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-
                 return
             } else {
                 let alert = UIAlertController(title: "Error", message: "The notifications are disabled, please enable it in settings.", preferredStyle: .alert)
@@ -90,17 +87,31 @@ class ViewController: UIViewController, WKUIDelegate {
     
     // Not called the first time
     @objc func datePickerValueChanged(_ sender: UIDatePicker){
-        print("Selected value \(sender.countDownDuration)")
+        if sender.countDownDuration > 3600 {
+            sender.countDownDuration = 3600
+        }
+        secondsForNotification = sender.countDownDuration
     }
     
     @objc func dismissPicker() {
-        print("Done")
         if let viewWithTag = self.view.viewWithTag(1) {
             viewWithTag.removeFromSuperview()
         }
         if let viewWithTag = self.view.viewWithTag(2) {
             viewWithTag.removeFromSuperview()
         }
+        
+        // Schedule Notification
+        let content = UNMutableNotificationContent()
+        content.title = "Freebitco.in"
+        content.body = "The game is ready to play"
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: secondsForNotification, repeats: false)
+
+        let request = UNNotificationRequest(identifier: "freebit-1", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+        
+        // Confirm Time
     }
 
     override func didReceiveMemoryWarning() {
