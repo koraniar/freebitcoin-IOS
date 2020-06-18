@@ -37,14 +37,26 @@ class ViewController: UIViewController, WKUIDelegate {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.sound,.badge]) { (allowed, _) in
             if allowed {
                 DispatchQueue.main.async {
-                  let datePicker: UIDatePicker = UIDatePicker()
-                  datePicker.frame = CGRect(x: 0, y: 50, width: self.webView.frame.width, height: 200)
-                  datePicker.datePickerMode = .countDownTimer
-                  datePicker.countDownDuration = 60 * 60
-                  datePicker.backgroundColor = UIColor.white
-                  datePicker.addTarget(self, action: #selector(self.datePickerValueChanged(_:)), for: .valueChanged)
+                    // Create Date Picker
+                    let datePicker: UIDatePicker = UIDatePicker()
+                    datePicker.frame = CGRect(x: 0, y: self.webView.frame.height - 200, width: self.webView.frame.width, height: 200)
+                    datePicker.datePickerMode = .countDownTimer
+                    datePicker.countDownDuration = 60 * 60
+                    datePicker.backgroundColor = UIColor.white
+                    datePicker.addTarget(self, action: #selector(self.datePickerValueChanged(_:)), for: .valueChanged)
+                    datePicker.tag = 1 // Id to remove it later
+                    
+                    // Create Toolbar for 'done' button
+                    let flexiblespace = UIBarButtonItem(barButtonSystemItem:.flexibleSpace , target: nil, action: nil)
+                    let btnDone = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.dismissPicker))
+                    let barAccessory = UIToolbar(frame: CGRect(x: 0, y: self.webView.frame.height - 240, width: self.webView.frame.width, height: 44))
+                    barAccessory.barStyle = .default
+                    barAccessory.isTranslucent = true
+                    barAccessory.items = [flexiblespace,btnDone]
+                    barAccessory.tag = 2 // Id to remove it later
                   
-                  self.webView.addSubview(datePicker)
+                    self.webView.addSubview(datePicker)
+                    self.webView.addSubview(barAccessory)
                 }
                 
                 
@@ -79,6 +91,16 @@ class ViewController: UIViewController, WKUIDelegate {
     // Not called the first time
     @objc func datePickerValueChanged(_ sender: UIDatePicker){
         print("Selected value \(sender.countDownDuration)")
+    }
+    
+    @objc func dismissPicker() {
+        print("Done")
+        if let viewWithTag = self.view.viewWithTag(1) {
+            viewWithTag.removeFromSuperview()
+        }
+        if let viewWithTag = self.view.viewWithTag(2) {
+            viewWithTag.removeFromSuperview()
+        }
     }
 
     override func didReceiveMemoryWarning() {
