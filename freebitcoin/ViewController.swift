@@ -42,7 +42,7 @@ class ViewController: UIViewController, WKUIDelegate {
                     let datePicker: UIDatePicker = UIDatePicker()
                     datePicker.frame = CGRect(x: 0, y: self.webView.frame.height - 200, width: self.webView.frame.width, height: 200)
                     datePicker.datePickerMode = .countDownTimer
-                    datePicker.countDownDuration = 60
+                    datePicker.countDownDuration = 60 * 60
                     datePicker.backgroundColor = UIColor.white
                     datePicker.setValue(UIColor.black, forKeyPath: "textColor")
                     datePicker.addTarget(self, action: #selector(self.datePickerValueChanged(_:)), for: .valueChanged)
