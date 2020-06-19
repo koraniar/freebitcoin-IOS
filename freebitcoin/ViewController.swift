@@ -27,14 +27,24 @@ class ViewController: UIViewController, WKUIDelegate {
         let myRequest = URLRequest(url: myURL!)
         webView.load(myRequest)
         
-        let buttonFrame = CGRect(x: 50, y: 150, width: 50, height: 50)
+        let buttonFrame = CGRect(x: 10, y: 150, width: 50, height: 50)
         let button = UIButton(frame: buttonFrame)
         button.backgroundColor = UIColor.green
-        button.addTarget(self, action: #selector(scheduleNotification(sender:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(openCountDownTimer(sender:)), for: .touchUpInside)
         webView.addSubview(button)
+        
+        let reloadButtonFrame = CGRect(x: 10, y: 210, width: 50, height: 50)
+        let reloadButton = UIButton(frame: reloadButtonFrame)
+        reloadButton.backgroundColor = UIColor.red
+        reloadButton.addTarget(self, action: #selector(reloadPage(sender:)), for: .touchUpInside)
+        webView.addSubview(reloadButton)
     }
     
-    @objc func scheduleNotification(sender: UIButton) {
+    @objc func reloadPage(sender: UIButton) {
+        webView.reload()
+    }
+    
+    @objc func openCountDownTimer(sender: UIButton) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.sound,.badge]) { (allowed, _) in
             if allowed {
                 DispatchQueue.main.async {
@@ -60,11 +70,12 @@ class ViewController: UIViewController, WKUIDelegate {
                     
                     // Create Toolbar for 'done' button
                     let flexiblespace = UIBarButtonItem(barButtonSystemItem:.flexibleSpace , target: nil, action: nil)
-                    let btnDone = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.dismissPicker))
+                    let btnDone = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.scheduleNotification))
+                    let btnCancel = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.dismissPicker))
                     let barAccessory = UIToolbar(frame: CGRect(x: 0, y: self.webView.frame.height - 240, width: self.webView.frame.width, height: 44))
                     barAccessory.barStyle = .default
                     barAccessory.isTranslucent = true
-                    barAccessory.items = [flexiblespace,btnDone]
+                    barAccessory.items = [btnCancel, flexiblespace, btnDone]
                     barAccessory.tag = 2 // Id to remove it later
                   
                     self.secondsForNotification = 3600
@@ -101,6 +112,10 @@ class ViewController: UIViewController, WKUIDelegate {
         if let viewWithTag = self.view.viewWithTag(2) {
             viewWithTag.removeFromSuperview()
         }
+    }
+    
+    @objc func scheduleNotification() {
+        dismissPicker()
         
         // Schedule Notification
         let content = UNMutableNotificationContent()
@@ -110,7 +125,7 @@ class ViewController: UIViewController, WKUIDelegate {
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: secondsForNotification, repeats: false)
 
         let request = UNNotificationRequest(identifier: "freebit-1", content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: { (error) in })
         
         // Confirm Time
         let alert = UIAlertController(title: "Success", message: "Notification will appear in \(String(describing: secondsForNotification)) seconds.", preferredStyle: .alert)
@@ -118,6 +133,13 @@ class ViewController: UIViewController, WKUIDelegate {
         
         present(alert, animated: true, completion: nil)
     }
+    
+//    @available(iOS 10.0, *)
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+//        print("didReceive")
+//        webView.reload()
+//        completionHandler()
+//    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
