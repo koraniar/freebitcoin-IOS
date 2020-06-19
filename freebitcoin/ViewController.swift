@@ -67,6 +67,7 @@ class ViewController: UIViewController, WKUIDelegate {
                     barAccessory.items = [flexiblespace,btnDone]
                     barAccessory.tag = 2 // Id to remove it later
                   
+                    self.secondsForNotification = 3600
                     self.webView.addSubview(datePicker)
                     self.webView.addSubview(barAccessory)
                 }
