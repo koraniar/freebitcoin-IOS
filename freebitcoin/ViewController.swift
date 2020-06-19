@@ -113,6 +113,10 @@ class ViewController: UIViewController, WKUIDelegate {
         UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
         
         // Confirm Time
+        let alert = UIAlertController(title: "Success", message: "Notification will appear in \(String(describing: secondsForNotification)) seconds.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default))
+        
+        present(alert, animated: true, completion: nil)
     }
 
     override func didReceiveMemoryWarning() {
