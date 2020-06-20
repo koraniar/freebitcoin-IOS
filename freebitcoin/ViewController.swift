@@ -9,7 +9,7 @@
 import UIKit
 import WebKit
 
-class ViewController: UIViewController, WKUIDelegate {
+class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDelegate {
     var webView: WKWebView!
     var secondsForNotification: double_t!
     
@@ -45,6 +45,7 @@ class ViewController: UIViewController, WKUIDelegate {
     }
     
     @objc func openCountDownTimer(sender: UIButton) {
+        UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.sound,.badge]) { (allowed, _) in
             if allowed {
                 DispatchQueue.main.async {
@@ -133,13 +134,14 @@ class ViewController: UIViewController, WKUIDelegate {
         
         present(alert, animated: true, completion: nil)
     }
-    
-//    @available(iOS 10.0, *)
-//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-//        print("didReceive")
-//        webView.reload()
-//        completionHandler()
-//    }
+
+      
+    // This function will be called right after user tap on the notification
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        webView.reload()
+        // tell the app that we have finished processing the user’s action / response
+        completionHandler()
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
