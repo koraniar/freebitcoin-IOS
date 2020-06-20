@@ -12,6 +12,7 @@ import WebKit
 class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDelegate {
     var webView: WKWebView!
     var secondsForNotification: double_t!
+    var countdownVisible: Bool = false
     
     override func loadView() {
         let webConfiguration = WKWebViewConfiguration()
@@ -45,6 +46,9 @@ class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDe
     }
     
     @objc func openCountDownTimer(sender: UIButton) {
+        if self.countdownVisible {
+            return;
+        }
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.sound,.badge]) { (allowed, _) in
             if allowed {
@@ -79,6 +83,7 @@ class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDe
                     barAccessory.items = [btnCancel, flexiblespace, btnDone]
                     barAccessory.tag = 2 // Id to remove it later
                   
+                    self.countdownVisible = true;
                     self.secondsForNotification = 3600
                     self.webView.addSubview(datePicker)
                     self.webView.addSubview(barAccessory)
@@ -113,6 +118,7 @@ class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDe
         if let viewWithTag = self.view.viewWithTag(2) {
             viewWithTag.removeFromSuperview()
         }
+        self.countdownVisible = false;
     }
     
     @objc func scheduleNotification() {
@@ -129,7 +135,7 @@ class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDe
         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (error) in })
         
         // Confirm Time
-        let alert = UIAlertController(title: "Success", message: "Notification will appear in \(String(describing: secondsForNotification)) seconds.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Success", message: "Notification will appear in \(String(describing: secondsForNotification / 60)) minutes.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default))
         
         present(alert, animated: true, completion: nil)
