@@ -28,13 +28,17 @@ class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDe
         let myRequest = URLRequest(url: myURL!)
         webView.load(myRequest)
         
-        let buttonFrame = CGRect(x: 10, y: 150, width: 50, height: 50)
+        let halfScreenWidth = UIScreen.main.bounds.width / 2
+        let quarterScreenWidth = halfScreenWidth / 2
+        let spaceFromBottomScreen = 100
+        
+        let buttonFrame = CGRect(x: halfScreenWidth + quarterScreenWidth - 25, y: UIScreen.main.bounds.height - CGFloat(spaceFromBottomScreen), width: 50, height: 50)
         let button = UIButton(frame: buttonFrame)
         button.backgroundColor = UIColor.green
         button.addTarget(self, action: #selector(openCountDownTimer(sender:)), for: .touchUpInside)
         webView.addSubview(button)
         
-        let reloadButtonFrame = CGRect(x: 10, y: 210, width: 50, height: 50)
+        let reloadButtonFrame = CGRect(x: quarterScreenWidth - 25, y: UIScreen.main.bounds.height - CGFloat(spaceFromBottomScreen), width: 50, height: 50)
         let reloadButton = UIButton(frame: reloadButtonFrame)
         reloadButton.backgroundColor = UIColor.red
         reloadButton.addTarget(self, action: #selector(reloadPage(sender:)), for: .touchUpInside)
@@ -135,7 +139,15 @@ class ViewController: UIViewController, WKUIDelegate, UNUserNotificationCenterDe
         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (error) in })
         
         // Confirm Time
-        let alert = UIAlertController(title: "Success", message: "Notification will appear in \(String(describing: secondsForNotification / 60)) minutes.", preferredStyle: .alert)
+        var stringTime = ""
+        if secondsForNotification <= 60 {
+            stringTime = "one minute"
+        } else if secondsForNotification >= 3600 {
+            stringTime = "one hour"
+        } else {
+            stringTime = "\(String(format: "%.0f", secondsForNotification / 60)) minutes"
+        }
+        let alert = UIAlertController(title: "Success", message: "Notification will appear in \(stringTime).", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default))
         
         present(alert, animated: true, completion: nil)
